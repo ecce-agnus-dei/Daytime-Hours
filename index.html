@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<!--
+  HOW TO UPDATE THIS PAGE
+  =======================
+  Things to change EVERY WEEK (in the <script> block near the bottom):
+
+  1. WEEK_START — the date of this week's Monday, format "YYYY-MM-DD".
+  2. SCHEDULE   — for each hour, 7 values (Mon → Sun), each one of:
+       "leading"  → "Open Jio" — you're leading and inviting others to join
+       "open"     → "Open" — not yet confirmed, anyone welcome to lead
+       "none"     → not held that day
+  3. PDF_LINKS  — for each day (Mon → Sun), the filename of that day's PDF
+       of the Office (e.g. "pdfs/mon.pdf"), or "" if there isn't one yet.
+       Every cell in that day's column becomes clickable and downloads it.
+  4. LAST_UPDATED — when you last edited this page.
+
+  Things to set up ONCE:
+
+  - Edit the placeholder text near the top of <body>: room name and location.
+  - PDFs: create a folder called "pdfs" next to this file. Each week, drop
+    that day's PDF in there using the filenames referenced in PDF_LINKS
+    (you can reuse the same 7 filenames every week and just overwrite them).
+  - Images: create a folder called "images" next to this file, and add two
+    pictures named "sacred-heart.jpg" and "divine-mercy.jpg" (any image
+    format works — just update the filenames in the <img> tags below to match).
+    A good source for public-domain devotional images is Wikimedia Commons
+    (commons.wikimedia.org) — search "Sacred Heart of Jesus" or "Divine Mercy"
+    and check the license on each image before using it.
+  - Look & feel: the colors, fonts, and image sizing are all controlled by
+    the CSS variables at the top of <style> — change those to restyle
+    the whole page at once.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Law Lib Liturgy of the Hours</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕯️</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital@0;1&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ============ THEME — edit these to restyle the whole page ============ */
+    :root {
+      --bg: #FAF5EE;          /* page background */
+      --surface: #FFFFFF;     /* card / table background */
+      --ink: #2E2A26;         /* main text */
+      --ink-soft: #8A8076;    /* muted text */
+      --rule: #EDE3D6;        /* hairlines, dividers */
+      --gold: #C9A646;        /* accent — image rings, divider */
+      --crimson: #963B3B;     /* accent — eyebrow, Sacred Heart tone */
+
+      /* hour color strip, top (dawn) to bottom (night) */
+      --dawn: #E3B08A;
+      --day: #C9A646;
+      --dusk: #963B3B;
+      --night: #3D4A66;
+
+      /* schedule status colors */
+      --leading: #5B7553;
+      --open: #7D8FA6;
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-garamond: 'EB Garamond', Garamond, serif;
+
+      --icon-size: 84px;      /* size of the Sacred Heart / Divine Mercy images */
+    }
+    /* ======================================================================= */
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      padding: 3rem 1.5rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .icon-row {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .devotion-icon {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 0 5px var(--bg), 0 4px 14px rgba(150, 59, 59, 0.18);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      font-weight: 600;
+      line-height: 1.15;
+      margin: 0 0 0.85rem;
+      text-align: center;
+    }
+
+    .intro {
+      font-family: var(--font-garamond);
+      font-size: 1.1rem;
+      line-height: 1.65;
+      max-width: 38em;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .liturgy-quote {
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .location {
+      margin-top: 0.9rem;
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+      text-align: center;
+    }
+
+    .divider {
+      border: none;
+      height: 2px;
+      margin: 1.75rem 0;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+
+    .week-label {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 1rem;
+    }
+
+    details {
+      margin: 1.75rem 0;
+      font-size: 0.9rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    summary:focus-visible {
+      outline: 2px solid var(--crimson);
+      outline-offset: 3px;
+    }
+
+    details p {
+      color: var(--ink-soft);
+      line-height: 1.65;
+      margin: 0.6rem 0 0;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      margin: 1.5rem 0 1rem;
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .legend .dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; flex-shrink: 0; }
+    .legend .dot.leading { background: var(--leading); }
+    .legend .dot.open { background: transparent; border: 1.5px solid var(--open); }
+    .legend .dot.none { background: var(--rule); }
+
+    .schedule-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+    }
+
+    th, td {
+      padding: 0.9rem 0.75rem;
+      text-align: center;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    thead th {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+
+    thead th:first-child { background: var(--surface); }
+
+    .date-num {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      color: var(--ink);
+      margin-top: 0.2rem;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    .hour-cell {
+      text-align: left;
+      min-width: 170px;
+      position: sticky;
+      left: 0;
+      background: var(--surface);
+      padding-left: 1rem;
+    }
+
+    .hour-cell[data-phase="dawn"]  { border-left: 4px solid var(--dawn); }
+    .hour-cell[data-phase="day"]   { border-left: 4px solid var(--day); }
+    .hour-cell[data-phase="dusk"]  { border-left: 4px solid var(--dusk); }
+    .hour-cell[data-phase="night"] { border-left: 4px solid var(--night); }
+
+    .hour-name {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .hour-meta {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      margin-top: 0.2rem;
+    }
+
+    .status {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      min-height: 1.55rem;
+    }
+
+    .status .dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; }
+
+    .status.leading { color: var(--leading); }
+    .status.leading .dot { background: var(--leading); }
+
+    .status.open { color: var(--open); }
+    .status.open .dot { background: transparent; border: 1.5px solid var(--open); }
+
+    .status.none { color: var(--ink-soft); }
+    .status.none .dot { background: var(--rule); }
+
+    a.status {
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 0.35rem 0.6rem;
+      margin: -0.35rem -0.6rem;
+      background: var(--surface);
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    a.status:hover {
+      background: var(--rule);
+      border-color: var(--gold);
+    }
+
+    a.status:focus-visible {
+      outline: 2px solid var(--crimson);
+      outline-offset: 2px;
+      background: var(--rule);
+    }
+
+    .pdf-icon {
+      width: 13px;
+      height: 13px;
+      color: var(--ink-soft);
+      opacity: 0.75;
+      vertical-align: -2px;
+    }
+
+    .pdf-note {
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+      margin: 0 0 1.25rem;
+    }
+
+    footer {
+      margin-top: 2.25rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--rule);
+      font-family: var(--font-garamond);
+      font-size: 1rem;
+      color: var(--ink-soft);
+      line-height: 1.65;
+    }
+
+    footer a { color: var(--crimson); }
+    footer a:focus-visible { outline: 2px solid var(--crimson); outline-offset: 2px; }
+
+    @media (max-width: 640px) {
+      body { padding: 2rem 1rem; }
+      h1 { font-size: 1.75rem; }
+      .legend { gap: 0.9rem 1.1rem; }
+      :root { --icon-size: 64px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="icon-row">
+      <img class="devotion-icon" src="images/sacred-heart.jpg" alt="Sacred Heart of Jesus"
+           onerror="this.remove()" />
+      <img class="devotion-icon" src="images/divine-mercy.jpg" alt="Divine Mercy"
+           onerror="this.remove()" />
+    </div>
+
+    <h1>Liturgy of the Hours</h1>
+    <blockquote class="intro liturgy-quote">
+      “From ancient times the Church has had the custom of celebrating each day
+      the liturgy of the hours. In this way the Church fulfills the Lord’s
+      precept to pray without ceasing, at once offering its praise to God the
+      Father and interceding for the salvation of the world.”
+    </blockquote>
+    <p class="intro">
+      While the Liturgy of the Hours is comprised of seven canonical hours of
+      prayer, this initiative only includes the daytime hours of Sext, None and
+      Vespers.
+    </p>
+    <p class="location">📍 Prayer Room at Law Library Level 1 (turn left from the level 1 entrance and walk straight till you reach the corner)</p>
+
+    <hr class="divider" />
+
+    <p class="week-label">Week of <span id="week-range"></span></p>
+
+    <details>
+      <summary>New to the Liturgy of the Hours?</summary>
+      <p>
+        If you are new to the Liturgy of the Hours, simply click the button
+        for each slot to download the PDF of the prayers. Do also consider
+        joining the Campus Cats group for Lauds, Vespers and Compline!
+      </p>
+    </details>
+
+    <div class="legend">
+      <span class="legend-item"><span class="dot leading"></span>Open Jio</span>
+      <span class="legend-item"><span class="dot open"></span>Open</span>
+      <span class="legend-item"><span class="dot none"></span>Not held</span>
+    </div>
+    <p class="pdf-note">Days marked with Open Jio have a PDF of that day's Office: tap any cell in that column to download it.</p>
+
+    <div class="schedule-wrap">
+      <table>
+        <thead>
+          <tr id="day-header">
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+    </div>
+
+    <footer>
+      <p>Schedule last updated: <span id="last-updated"></span>.</p>
+      <p>
+        Want to lead an "open" hour, or have a question? Reach out to
+        Khok Yee at <a href="https://t.me/khokyee" target="_blank" rel="noopener">@khokyee</a> on Telegram.
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    // The three hours prayed as a group. "phase" sets the color strip and
+    // reflects the time of day.
+    const HOURS = [
+      { key: "sext",    name: "Sext",    subtitle: "Midday Prayer",        time: "12:10 PM", phase: "day"   },
+      { key: "none_",   name: "None",    subtitle: "Mid-Afternoon Prayer", time: "3:10 PM",  phase: "dusk"  },
+      { key: "vespers", name: "Vespers", subtitle: "Evening Prayer",       time: "6:00 PM",  phase: "night" },
+    ];
+
+    // ====================== EDIT EVERY WEEK ======================
+
+    // Monday of THIS week, as "YYYY-MM-DD"
+    const WEEK_START = "2026-06-15";
+
+    // For each hour, 7 values (Mon → Sun): "leading", "open", or "none"
+    const SCHEDULE = {
+      sext:    ["open",    "leading", "open",    "open",    "leading", "none", "none"],
+      none_:   ["leading", "open",    "open",    "leading", "open",    "none", "none"],
+      vespers: ["leading", "open",    "leading", "open",    "leading", "none", "none"],
+    };
+
+    // PDF of the Office for each day (Mon → Sun). Leave "" for no link.
+    const PDF_LINKS = ["", "", "", "", "", "", ""];
+
+    // When you last edited this page
+    const LAST_UPDATED = "14 June 2026";
+
+    // ================================================================
+
+    const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const STATUS_LABELS = { leading: "Open Jio", open: "Open", none: "—" };
+
+    const startDate = new Date(WEEK_START + "T00:00:00");
+    const weekDates = DAY_NAMES.map((_, i) => {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      return d;
+    });
+
+    const dayHeaderRow = document.getElementById("day-header");
+    const tbody = document.getElementById("schedule-body");
+
+    // Day headers with dates
+    DAY_NAMES.forEach((day, i) => {
+      const th = document.createElement("th");
+      th.innerHTML = `${day}<span class="date-num">${weekDates[i].getDate()}</span>`;
+      dayHeaderRow.appendChild(th);
+    });
+
+    // Week range label, e.g. "Jun 15–21" or "Jun 29 – Jul 5"
+    const first = weekDates[0];
+    const last = weekDates[6];
+    const rangeText = (first.getMonth() === last.getMonth())
+      ? `${MONTH_NAMES[first.getMonth()]} ${first.getDate()}–${last.getDate()}`
+      : `${MONTH_NAMES[first.getMonth()]} ${first.getDate()} – ${MONTH_NAMES[last.getMonth()]} ${last.getDate()}`;
+    document.getElementById("week-range").textContent = rangeText;
+
+    // Schedule rows
+    HOURS.forEach(hour => {
+      const tr = document.createElement("tr");
+
+      const hourCell = document.createElement("td");
+      hourCell.className = "hour-cell";
+      hourCell.dataset.phase = hour.phase;
+      hourCell.innerHTML = `<div class="hour-name">${hour.name}</div>` +
+                            `<div class="hour-meta">${hour.subtitle} · ${hour.time}</div>`;
+      tr.appendChild(hourCell);
+
+      SCHEDULE[hour.key].forEach((status, i) => {
+        const td = document.createElement("td");
+        const label = STATUS_LABELS[status] ?? "—";
+        const pdf = PDF_LINKS[i];
+
+        const pdfIcon = pdf
+          ? `<svg class="pdf-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+               <path d="M6 2h9l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+               <path d="M15 2v5h5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+             </svg>`
+          : "";
+        const inner = `<span class="dot"></span>${label}${pdfIcon}`;
+
+        if (pdf) {
+          td.innerHTML = `<a class="status ${status}" href="${pdf}" download
+            title="Download the Office for ${DAY_NAMES[i]}">${inner}</a>`;
+        } else {
+          td.innerHTML = `<span class="status ${status}">${inner}</span>`;
+        }
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById("last-updated").textContent = LAST_UPDATED;
+  </script>
+</body>
+</html>
